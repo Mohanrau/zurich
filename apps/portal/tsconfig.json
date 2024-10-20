@@ -25,7 +25,9 @@
     "**/*.jsx",
     "../../apps/portal/.next/types/**/*.ts",
     "../../dist/apps/portal/.next/types/**/*.ts",
-    "next-env.d.ts"
+    "next-env.d.ts",
+    "next-auth.d.ts",
+    ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules", "jest.config.ts", "**/*.spec.ts", "**/*.test.ts"]
 }

@@ -1,101 +1,188 @@
-# Zurich
+## Setup Nx Monorepo (Portal + Backend)
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+1. Clone the mono repository:
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+   ```bash
+   git clone https://github.com/Mohanrau/zurich.git
+   cd zurich
+   ```
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/next?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+2. Install dependencies:
 
-## Run tasks
+   ```bash
+   npm install
+   ```
 
-To run the dev server for your app, use:
+3. Create a `.env` by copying `.env.example` and rename it from the project root and this are available environment variables:
 
-```sh
-npx nx dev portal
-```
+   ```
+   # Web Developer Assignment (PORTAL)
+   PORT=3000
+   GOOGLE_CLIENT_ID=
+   GOOGLE_CLIENT_SECRET=
+   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_SECRET=
 
-To create a production bundle:
+   #Nest JS backend test (BACKEND)
+   BACKEND_PORT=3001
+   DATABASE_HOST=localhost
+   DATABASE_PORT=5432
+   DATABASE_USER=postgres
+   DATABASE_PASSWORD=password
+   DATABASE_NAME=MOTOR_INSURANCE_WEBSITE
+   ```
 
-```sh
-npx nx build portal
-```
+4. Run the project with Docker Compose:
 
-To see all available targets to run for a project, run:
+   ### Development
 
-```sh
-npx nx show project portal
-```
+   Start developement related containers e.g: Database
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+   ```bash
+   docker build . -t zuric-base-image:nx-base
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+   docker compose -f .\development.yml up --build -d
+   ```
 
-## Add new projects
+   ### Production
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+   ```bash
+   docker compose -f .\deployment.yml up -d
+   ```
 
-Use the plugin's generator to create new projects.
+   Portal URL = https://localhost:8081
 
-To generate a new application, use:
+   Backen URL = https://localhost:8081/backend/api
 
-```sh
-npx nx g @nx/next:app demo
-```
+5. Available Script Options
 
-To generate a new library, use:
+   ```bash
+      "start-all": "npx nx run-many --targets=dev,serve",
+      "dev:portal": "npx nx run portal:dev",
+      "dev:backend": "npx nx run backend:serve",
+      "test": "npx nx run-many --target=test --all",
+      "test:cov": "npx nx run-many --target=test --coverage --all",
+      "test:backend": "npx nx run backend:test",
+      "test:cov:backend": "npx nx run backend:test --coverage",
+      "test:portal": "npx nx run backend:test",
+      "test:cov:portal": "npx nx run backend:test --coverage"
+   ```
 
-```sh
-npx nx g @nx/react:lib mylib
-```
+   `npm run {option}`
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+6. The API will be available at `http://localhost:3000`. You can access the Swagger UI at `http://localhost:3000/api`.
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Testing
 
-## Set up CI!
+1. To run the unit tests:
 
-### Step 1
+   ```bash
+   npm run test
+   ```
 
-To connect to Nx Cloud, run the following command:
+2. Ensure that the code coverage. You can check the coverage by running:
+   ```bash
+   npm run test:cov
+   ```
 
-```sh
-npx nx connect
-```
+---
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+# Web Developer Assignment (Portal)
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Zurich is building a customer portal for users to manage their insurance accounts. This assignment outlines the development of the frontend part using Next.js, Redux for state management, and Google OAuth2 for authentication.
 
-### Step 2
+## Requirements
 
-Use the following command to configure a CI workflow for your workspace:
+1. **Authentication**
 
-```sh
-npx nx g ci-workflow
-```
+   - Implement Google OAuth2 for user authentication.
+   - Redirect authenticated users to the users list screen.
+   - Show an error page for unauthorized access to protected pages.
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+2. **Users List Screen**
 
-## Install Nx Console
+   - Contains three components: header, footer, and content.
+   - Make an API call to `https://reqres.in/api/users`.
+   - Filter records where the first name starts with "G" or the last name starts with "W".
+   - Mask email addresses by default and reveal them when a button is clicked.
+   - Traverse all API response pages to fetch all records.
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+3. **Code Criteria**
+   - Ensure code is clear, complete, and organized.
+   - Must be secure, testable, and reusable.
+   - Meet the business logic and security requirements.
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Technologies Used
 
-## Useful links
+- **Next.js**: For frontend development.
+- **Redux**: For managing application state.
+- **Google OAuth2**: For user authentication.
 
-Learn more:
+## Testing
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/next?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- Implement unit tests to ensure that the application remains stable with frequent updates.
+- Ensure business logic is protected from the browser.
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+---
+
+# Zurich Motor Insurance Pricing API (Backend)
+
+This project is a backend API for Zurich Malaysia's new motor insurance website. The API allows users to retrieve insurance premiums based on product type and location and provides administrative functionalities to manage products and prices.
+
+## Table of Contents
+
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Setup](#setup)
+- [API Endpoints](#api-endpoints)
+- [Database](#database)
+- [Testing](#testing)
+
+## Features
+
+- Retrieve insurance premium based on product code and location.
+- Administrative operations to add, update, and delete products.
+- Swagger integration for API documentation and testing.
+- Role-based access control using middleware to verify user roles from token metadata.
+- Deployed with Docker and PostgreSQL.
+- Includes unit tests with 80%+ code coverage.
+
+## Technologies Used
+
+- **NestJS** - Framework for building efficient, reliable, and scalable server-side applications.
+- **TypeORM** - For database interaction with PostgreSQL.
+- **PostgreSQL** - Database to store motor insurance product information.
+- **Swagger** - API documentation.
+- **Docker** - For containerized deployment.
+
+## API Endpoints
+
+- **GET /product**
+
+  - Parameters: `productCode`, `location`
+  - Retrieves the premium for a product based on product code and location.
+  - Accessible by all users.
+
+- **POST /product**
+
+  - Body: `productCode`, `location`, `price`
+  - Creates a new product entry. Admin access only.
+
+- **PUT /product**
+
+  - Query parameter: `productCode`
+  - Body: `location`, `price`
+  - Updates the price for a product at a specific location. Admin access only.
+
+- **DELETE /product**
+  - Query parameter: `productCode`
+  - Deletes a product. Admin access only.
+
+## Database
+
+- **Database Name**: `MOTOR_INSURANCE_WEBSITE`
+- **Table**: `PRODUCT`
+  - `id` (Primary Key)
+  - `productCode` (VARCHAR)
+  - `location` (VARCHAR)
+  - `price` (FLOAT)

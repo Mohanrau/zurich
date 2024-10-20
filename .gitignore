@@ -44,3 +44,9 @@ Thumbs.db
 # Next.js
 .next
 out
+
+#Envoirenment
+*.env
+.env
+/apps/backend/.env
+/apps/portal/.env

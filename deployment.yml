@@ -1,0 +1,80 @@
+version: '3.8'
+
+# In this Docker Compose example, it assumes that you maintain a reverse proxy externally (or chose not to).
+# The only two exposed ports here are from minio (:9000) and the app itself (:3000).
+# If these ports are changed, ensure that the env vars passed to the app are also changed accordingly.
+
+services:
+  # Database (Postgres)
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - '${DATABASE_PORT}:5432'
+    networks:
+      - corp
+  backend:
+    container_name: backend
+    build:
+      context: ./
+      cache_from:
+        - zuric-base-image:nx-base
+      dockerfile: ./apps/backend/Dockerfile
+    image: backend:nx-dev
+    ports:
+      - 3001:3001
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: password
+      DATABASE_NAME: MOTOR_INSURANCE_WEBSITE
+      BACKEND_PORT: 3001
+    networks:
+      - corp
+    restart: on-failure
+  portal:
+    container_name: portal
+    build:
+      context: ./
+      dockerfile: ./apps/portal/Dockerfile
+    image: portal:nx-dev
+    environment:
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      NEXTAUTH_URL: http://localhost:8081
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+    ports:
+      - 3002:3000
+    networks:
+      - corp
+    restart: on-failure
+  web:
+    container_name: web
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - '8081:80'
+    depends_on:
+      - portal
+      - backend
+    networks:
+      - corp
+networks:
+  corp:
+    driver: bridge
+
+volumes:
+  postgres_data:
