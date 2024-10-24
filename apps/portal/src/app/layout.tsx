@@ -10,10 +10,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-white">
+      <body className="bg-white md:h-screen">
         <AppProvider basePath="/api/auth">
           <Header />
-          <div className="w-full flex flex-wrap md:h-screen pt-32">
+          <div className="w-full pt-32 overflow-auto px-12 h-[70vh]">
             {children}
           </div>
           <Footer />

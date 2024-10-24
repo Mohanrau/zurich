@@ -30,6 +30,7 @@
    DATABASE_USER=postgres
    DATABASE_PASSWORD=password
    DATABASE_NAME=MOTOR_INSURANCE_WEBSITE
+   JWT_SECRET=12345678
    ```
 
 4. Run the project with Docker Compose:
@@ -140,6 +141,7 @@ This project is a backend API for Zurich Malaysia's new motor insurance website.
 
 ## Features
 
+- JWT Token based authorization
 - Retrieve insurance premium based on product code and location.
 - Administrative operations to add, update, and delete products.
 - Swagger integration for API documentation and testing.
@@ -154,8 +156,11 @@ This project is a backend API for Zurich Malaysia's new motor insurance website.
 - **PostgreSQL** - Database to store motor insurance product information.
 - **Swagger** - API documentation.
 - **Docker** - For containerized deployment.
+- **JWT** - For authorization.
 
 ## API Endpoints
+
+`Authorization` Token can be genarate here: http://jwtbuilder.jamiekurtz.com/ use `JWT_SECRET` env.
 
 - **GET /product**
 

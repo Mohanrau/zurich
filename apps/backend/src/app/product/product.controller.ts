@@ -11,13 +11,18 @@ import {
   HttpStatus,
   Header,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from '../../dto/product/create.dto';
 import { UpdateProductDto } from '../../dto/product/update.dto';
-import { ApiHeader, ApiQuery, ApiParam } from '@nestjs/swagger';
+import { ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '../../guards/auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/roles.decorator';
 
 @Controller('product')
+@ApiBearerAuth('jwt')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
@@ -32,6 +37,7 @@ export class ProductController {
     required: false,
     description: 'The location where the product is offered',
   })
+  @UseGuards(JwtAuthGuard)
   async find(
     @Query('productCode') productCode?: string,
     @Query('location') location?: string
@@ -47,12 +53,9 @@ export class ProductController {
   }
 
   @Post()
-  @ApiHeader({
-    name: 'role',
-    description: 'The role of the user (admin, user, etc.)',
-    required: true,
-  })
   @Header('Content-Type', 'application/json')
+  @UseGuards(JwtAuthGuard, AuthGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createProductDto: CreateProductDto) {
     try {
@@ -64,15 +67,12 @@ export class ProductController {
   }
 
   @Put(':productCode')
-  @ApiHeader({
-    name: 'role',
-    description: 'The role of the user (admin, user, etc.)',
-    required: true,
-  })
   @ApiParam({
     name: 'productCode',
     description: 'The product code of the product to update',
   })
+  @UseGuards(JwtAuthGuard, AuthGuard)
+  @Roles('admin')
   async update(
     @Param('productCode') productCode: string,
     @Body() updateProductDto: UpdateProductDto
@@ -91,15 +91,12 @@ export class ProductController {
   }
 
   @Delete(':productCode')
-  @ApiHeader({
-    name: 'role',
-    description: 'The role of the user (admin, user, etc.)',
-    required: true,
-  })
   @ApiParam({
     name: 'productCode',
     description: 'The product code of the product to delete',
   })
+  @UseGuards(JwtAuthGuard, AuthGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('productCode') productCode: string) {
     try {

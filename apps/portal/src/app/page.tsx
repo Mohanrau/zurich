@@ -1,6 +1,6 @@
-export default function LoginPage() {
+export default async function LoginPage() {
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="text-center">
       <h1>Welcome to My Next.js App</h1>
     </div>
   );

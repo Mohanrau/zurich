@@ -1,18 +1,19 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
-
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from '../entities/product/entity';
 import { ProductController } from './product/product.controller';
 import { ProductService } from './product/product.service';
-import { RoleCheckMiddleware } from '../middleware/auth.middleware';
+import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    AuthModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DATABASE_HOST || 'localhost',
@@ -26,16 +27,12 @@ import { RoleCheckMiddleware } from '../middleware/auth.middleware';
     TypeOrmModule.forFeature([Product]),
   ],
   controllers: [ProductController],
-  providers: [ProductService],
+  providers: [
+    ProductService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
-@Module({
-  imports: [],
-})
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(RoleCheckMiddleware)
-      .exclude({ path: 'product', method: RequestMethod.GET })
-      .forRoutes(ProductController);
-  }
-}
+export class AppModule {}
